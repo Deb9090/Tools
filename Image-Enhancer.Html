@@ -1,0 +1,110 @@
+                let r = data[i];
+                let g = data[i + 1];
+                let b = data[i + 2];
+
+                // Convert to HSL
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const l = (max + min) / 2 / 255;
+                let s = 0;
+
+                if (max !== min) {
+                    s = (l > 0.5)
+                        ? (max - min) / (510 - max - min)
+                        : (max - min) / (max + min);
+                }
+
+                s *= factor;
+
+                // Average of channels (greyscale approximation)
+                const avg = (r + g + b) / 3;
+
+                // Apply saturation
+                data[i] = clamp(avg + (r - avg) * (1 + s));
+                data[i + 1] = clamp(avg + (g - avg) * (1 + s));
+                data[i + 2] = clamp(avg + (b - avg) * (1 + s));
+            }
+        }
+
+        function applyNoiseReduction(data, intensity) {
+            const factor = intensity / 100;
+            for (let i = 0; i < data.length; i += 4) {
+                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = clamp(data[i] * (1 - factor) + avg * factor);
+                data[i + 1] = clamp(data[i + 1] * (1 - factor) + avg * factor);
+                data[i + 2] = clamp(data[i + 2] * (1 - factor) + avg * factor);
+            }
+        }
+
+        // Helper functions
+        function clamp(value) {
+            return Math.max(0, Math.min(255, value));
+        }
+
+        function formatFileSize(size) {
+            if (size < 1024) return `${size} B`;
+            if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+            return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+        }
+
+        function estimateQuality(imgOrCanvas) {
+            // Simple quality estimation based on resolution
+            const pixels = imgOrCanvas.width * imgOrCanvas.height;
+            if (pixels < 500000) return "40";
+            if (pixels < 1000000) return "60";
+            if (pixels < 3000000) return "75";
+            if (pixels < 5000000) return "85";
+            return "95";
+        }
+
+        function calculateImprovement(originalQ, enhancedQ) {
+            return Math.max(0, enhancedQ - originalQ);
+        }
+
+        function resetTool() {
+            originalImageData = null;
+            originalFile = null;
+            enhancedImageData = null;
+            enhancedBlob = null;
+            imagePreview.style.display = 'none';
+            comparisonContainer.style.display = 'none';
+            imageInfo.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            enhanceBtn.disabled = true;
+            fileInput.value = "";
+            showNotification("Tool reset successfully!");
+        }
+
+        function downloadImage() {
+            if (!enhancedBlob) {
+                showNotification("No enhanced image to download!", "error");
+                return;
+            }
+            const url = URL.createObjectURL(enhancedBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "enhanced-image.jpg";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification("Image downloaded successfully!");
+        }
+
+        function showNotification(message, type = "success") {
+            notificationText.textContent = message;
+            notification.classList.remove("error");
+            if (type === "error") {
+                notification.classList.add("error");
+                notification.querySelector("i").className = "fas fa-exclamation-circle";
+            } else {
+                notification.querySelector("i").className = "fas fa-check-circle";
+            }
+            notification.classList.add("show");
+            setTimeout(() => {
+                notification.classList.remove("show");
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
