@@ -30,6 +30,7 @@
             color: var(--dark);
             background-color: #fff5f7;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
@@ -94,6 +95,7 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
+            z-index: 101;
         }
 
         /* Hero Section */
@@ -226,6 +228,13 @@
             transition: var(--transition);
             cursor: pointer;
             border: 1px solid rgba(216, 27, 96, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .tool-card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .tool-card:hover {
@@ -294,6 +303,14 @@
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             border: 1px solid rgba(216, 27, 96, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .feature-item.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .feature-icon {
@@ -405,6 +422,7 @@
                 padding: 20px;
                 display: none;
                 box-shadow: 0 10px 20px rgba(216, 27, 96, 0.2);
+                z-index: 99;
             }
             
             nav.active {
@@ -451,6 +469,27 @@
                 max-width: 320px;
                 margin: 0 auto;
             }
+            
+            .search-box button {
+                position: relative;
+                margin-top: 10px;
+                width: 100%;
+                right: 0;
+                top: 0;
+            }
+        }
+
+        /* Search Results */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--dark);
+            grid-column: 1 / -1;
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -466,9 +505,9 @@
                 <nav id="nav">
                     <ul>
                         <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="#"><i class="fas fa-image"></i> Image Tools</a></li>
-                        <li><a href="#"><i class="fas fa-file-pdf"></i> PDF Tools</a></li>
-                        <li><a href="#"><i class="fas fa-cogs"></i> Other Tools</a></li>
+                        <li><a href="#image-tools"><i class="fas fa-image"></i> Image Tools</a></li>
+                        <li><a href="#pdf-tools"><i class="fas fa-file-pdf"></i> PDF Tools</a></li>
+                        <li><a href="#other-tools"><i class="fas fa-cogs"></i> Other Tools</a></li>
                         <li><a href="#"><i class="fas fa-question-circle"></i> Help</a></li>
                     </ul>
                 </nav>
@@ -486,21 +525,21 @@
             <p>Free, fast and easy-to-use online tools for your everyday needs. No installation required.</p>
             
             <div class="search-box">
-                <input type="text" placeholder="Search for tools...">
-                <button><i class="fas fa-search"></i> Search</button>
+                <input type="text" id="searchInput" placeholder="Search for tools...">
+                <button id="searchButton"><i class="fas fa-search"></i> Search</button>
             </div>
             
             <div class="cta-buttons">
-                <a href="#" class="btn btn-primary"><i class="fas fa-bolt"></i> Get Started</a>
+                <a href="#image-tools" class="btn btn-primary"><i class="fas fa-bolt"></i> Get Started</a>
                 <a href="#" class="btn btn-outline"><i class="fas fa-star"></i> Premium Tools</a>
             </div>
         </div>
     </section>
 
     <!-- Image Tools Section -->
-    <section class="container">
+    <section class="container" id="image-tools">
         <h2 class="section-title">Image Tools</h2>
-        <div class="tools-grid">
+        <div class="tools-grid" id="image-tools-grid">
             <div class="tool-card">
                 <div class="tool-icon">
                     <i class="fas fa-compress-arrows-alt"></i>
@@ -508,7 +547,7 @@
                 <div class="tool-content">
                     <h3>Image Compressor</h3>
                     <p>Reduce image file size without losing quality</p>
-                    <a href="Img-compressed.Html">Use Tool <i class="fas fa-arrow-right"></i></a>
+                    <a href="Img-compressed.Html" class="Img-compressed.Html">Use Tool <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -570,9 +609,9 @@
     </section>
 
     <!-- PDF Tools Section -->
-    <section class="container">
+    <section class="container" id="pdf-tools">
         <h2 class="section-title">PDF Tools</h2>
-        <div class="tools-grid">
+        <div class="tools-grid" id="pdf-tools-grid">
             <div class="tool-card">
                 <div class="tool-icon">
                     <i class="fas fa-file-pdf"></i>
@@ -642,9 +681,9 @@
     </section>
 
     <!-- Other Tools Section -->
-    <section class="container">
+    <section class="container" id="other-tools">
         <h2 class="section-title">Other Useful Tools</h2>
-        <div class="tools-grid">
+        <div class="tools-grid" id="other-tools-grid">
             <div class="tool-card">
                 <div class="tool-icon">
                     <i class="fas fa-video"></i>
@@ -781,10 +820,10 @@
                 <div class="footer-column">
                     <h3>Tool Categories</h3>
                     <ul>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Image Tools</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> PDF Tools</a></li>
+                        <li><a href="#image-tools"><i class="fas fa-chevron-right"></i> Image Tools</a></li>
+                        <li><a href="#pdf-tools"><i class="fas fa-chevron-right"></i> PDF Tools</a></li>
+                        <li><a href="#other-tools"><i class="fas fa-chevron-right"></i> Other Tools</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Video Tools</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Document Tools</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Developer Tools</a></li>
                     </ul>
                 </div>
@@ -824,24 +863,89 @@
             document.getElementById('nav').classList.toggle('active');
         });
 
-        // Simple animation for tool cards on scroll
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.getElementById('nav').classList.remove('active');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchButton').addEventListener('click', performSearch);
+        document.getElementById('searchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const toolCards = document.querySelectorAll('.tool-card');
+            let hasResults = false;
+
+            toolCards.forEach(card => {
+                const toolName = card.querySelector('h3').textContent.toLowerCase();
+                const toolDescription = card.querySelector('p').textContent.toLowerCase();
+                
+                if (toolName.includes(searchTerm) || toolDescription.includes(searchTerm)) {
+                    card.classList.remove('hidden');
+                    hasResults = true;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Show no results message if needed
+            const noResults = document.querySelector('.no-results');
+            if (!hasResults && searchTerm) {
+                if (!noResults) {
+                    const message = document.createElement('div');
+                    message.className = 'no-results';
+                    message.textContent = `No tools found for "${searchTerm}". Try a different search term.`;
+                    document.querySelector('.tools-grid').appendChild(message);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+        }
+
+        // Scroll animations
         document.addEventListener('DOMContentLoaded', function() {
             const toolCards = document.querySelectorAll('.tool-card');
+            const featureItems = document.querySelectorAll('.feature-item');
             
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.style.opacity = 1;
-                        entry.target.style.transform = 'translateY(0)';
+                        entry.target.classList.add('visible');
                     }
                 });
             }, { threshold: 0.1 });
             
             toolCards.forEach(card => {
-                card.style.opacity = 0;
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                 observer.observe(card);
+            });
+            
+            featureItems.forEach(item => {
+                observer.observe(item);
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
             });
         });
     </script>
