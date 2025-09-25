@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watermark Tool - Protect Your Work</title>
+    <title>Watermark Tool - Precise Placement</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -14,6 +14,7 @@
             --success: #4cc9f0;
             --gray: #6c757d;
             --gray-light: #e9ecef;
+            --border-radius: 10px;
         }
         
         * {
@@ -30,7 +31,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -41,7 +42,7 @@
             padding: 20px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
@@ -67,7 +68,7 @@
             min-width: 300px;
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
@@ -76,7 +77,7 @@
             min-width: 300px;
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
@@ -87,7 +88,7 @@
             min-width: 300px;
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
@@ -166,7 +167,8 @@
             border-radius: 8px;
             overflow: hidden;
             margin-bottom: 20px;
-            min-height: 300px;
+            min-height: 400px;
+            position: relative;
         }
         
         #imagePreview {
@@ -311,6 +313,60 @@
             border-top: 1px solid var(--gray-light);
         }
         
+        /* Watermark positioning styles */
+        .watermark-overlay {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+        
+        .watermark-overlay.text {
+            padding: 5px;
+            white-space: nowrap;
+        }
+        
+        .watermark-overlay.image {
+            pointer-events: none;
+        }
+        
+        .watermark-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border: 2px solid white;
+            border-radius: 50%;
+            bottom: -6px;
+            right: -6px;
+            cursor: nwse-resize;
+            display: none;
+        }
+        
+        .watermark-overlay.active .watermark-handle {
+            display: block;
+        }
+        
+        .positioning-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .positioning-options .btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .coordinates-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
@@ -330,7 +386,7 @@
     <div class="container">
         <header>
             <h1>Watermark Tool</h1>
-            <p class="subtitle">Add text or image watermarks to protect your work • Improve quality • Convert to HD</p>
+            <p class="subtitle">Add text or image watermarks with precise placement • Improve quality • Convert to HD</p>
         </header>
         
         <div class="app-container">
@@ -366,12 +422,22 @@
             </div>
             
             <div class="preview-section">
-                <h2 class="section-title">Preview</h2>
-                <div class="preview-container">
+                <h2 class="section-title">Preview & Positioning</h2>
+                <div class="preview-container" id="previewContainer">
                     <img id="imagePreview" alt="Preview">
                     <div class="placeholder-text" id="previewPlaceholder">
                         Your image will appear here after upload
                     </div>
+                    <!-- Watermark overlay will be added here dynamically -->
+                </div>
+                <div class="positioning-options">
+                    <button class="btn btn-secondary" id="precisePositionBtn">Precise Placement Mode</button>
+                    <button class="btn" id="gridPositionBtn">Grid Placement</button>
+                </div>
+                <div class="coordinates-display">
+                    <span>X: <span id="positionX">0</span>px</span>
+                    <span>Y: <span id="positionY">0</span>px</span>
+                    <span>Drag to position</span>
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-secondary" id="resetBtn">Reset</button>
@@ -398,6 +464,7 @@
                             <option value="'Courier New', monospace">Courier New</option>
                             <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
                             <option value="Impact, sans-serif">Impact</option>
+                            <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -415,6 +482,13 @@
                         </div>
                     </div>
                     <div class="control-group">
+                        <label class="control-label">Background Color</label>
+                        <div class="color-picker">
+                            <input type="color" id="textBgColor" value="#000000">
+                            <span id="textBgColorValue">#000000</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
                         <label class="control-label">Opacity</label>
                         <div class="range-control">
                             <input type="range" id="textOpacity" min="0" max="100" value="70">
@@ -422,7 +496,7 @@
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label">Position</label>
+                        <label class="control-label">Quick Position</label>
                         <div class="position-controls">
                             <button class="position-btn" data-position="top-left">Top Left</button>
                             <button class="position-btn" data-position="top-center">Top Center</button>
@@ -461,7 +535,7 @@
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label">Position</label>
+                        <label class="control-label">Quick Position</label>
                         <div class="position-controls">
                             <button class="position-btn" data-position="top-left">Top Left</button>
                             <button class="position-btn" data-position="top-center">Top Center</button>
@@ -478,6 +552,7 @@
                 
                 <div class="control-group">
                     <button class="btn" id="applyWatermarkBtn">Apply Watermark</button>
+                    <button class="btn btn-secondary" id="updatePreviewBtn" style="margin-top: 10px; width: 100%;">Update Preview</button>
                 </div>
             </div>
         </div>
@@ -493,6 +568,7 @@
         const imageUpload = document.getElementById('imageUpload');
         const browseBtn = document.getElementById('browseBtn');
         const imagePreview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('previewContainer');
         const previewPlaceholder = document.getElementById('previewPlaceholder');
         const resetBtn = document.getElementById('resetBtn');
         const downloadBtn = document.getElementById('downloadBtn');
@@ -500,6 +576,11 @@
         const tabContents = document.querySelectorAll('.tab-content');
         const positionBtns = document.querySelectorAll('.position-btn');
         const applyWatermarkBtn = document.getElementById('applyWatermarkBtn');
+        const updatePreviewBtn = document.getElementById('updatePreviewBtn');
+        const precisePositionBtn = document.getElementById('precisePositionBtn');
+        const gridPositionBtn = document.getElementById('gridPositionBtn');
+        const positionX = document.getElementById('positionX');
+        const positionY = document.getElementById('positionY');
         
         // Text watermark controls
         const watermarkText = document.getElementById('watermarkText');
@@ -508,6 +589,8 @@
         const textSizeValue = document.getElementById('textSizeValue');
         const textColor = document.getElementById('textColor');
         const textColorValue = document.getElementById('textColorValue');
+        const textBgColor = document.getElementById('textBgColor');
+        const textBgColorValue = document.getElementById('textBgColorValue');
         const textOpacity = document.getElementById('textOpacity');
         const textOpacityValue = document.getElementById('textOpacityValue');
         
@@ -532,6 +615,12 @@
         let activeTab = 'text';
         let textPosition = 'bottom-center';
         let imagePosition = 'bottom-center';
+        let watermarkOverlay = null;
+        let isDragging = false;
+        let isResizing = false;
+        let dragStartX, dragStartY;
+        let overlayStartX, overlayStartY;
+        let preciseMode = false;
         
         // Event Listeners
         browseBtn.addEventListener('click', () => imageUpload.click());
@@ -549,6 +638,11 @@
                 tab.classList.add('active');
                 document.getElementById(`${tab.dataset.tab}Tab`).classList.add('active');
                 activeTab = tab.dataset.tab;
+                
+                // Update preview if watermark exists
+                if (watermarkOverlay) {
+                    updateWatermarkPreview();
+                }
             });
         });
         
@@ -564,20 +658,41 @@
                 } else {
                     imagePosition = btn.dataset.position;
                 }
+                
+                // If not in precise mode, apply the grid position
+                if (!preciseMode) {
+                    applyGridPosition();
+                }
             });
         });
         
         // Text controls
         textSize.addEventListener('input', () => {
             textSizeValue.textContent = `${textSize.value}px`;
+            if (watermarkOverlay && activeTab === 'text') {
+                updateWatermarkPreview();
+            }
         });
         
         textColor.addEventListener('input', () => {
             textColorValue.textContent = textColor.value.toUpperCase();
+            if (watermarkOverlay && activeTab === 'text') {
+                updateWatermarkPreview();
+            }
+        });
+        
+        textBgColor.addEventListener('input', () => {
+            textBgColorValue.textContent = textBgColor.value.toUpperCase();
+            if (watermarkOverlay && activeTab === 'text') {
+                updateWatermarkPreview();
+            }
         });
         
         textOpacity.addEventListener('input', () => {
             textOpacityValue.textContent = `${textOpacity.value}%`;
+            if (watermarkOverlay && activeTab === 'text') {
+                updateWatermarkStyle();
+            }
         });
         
         // Image watermark controls
@@ -586,10 +701,16 @@
         
         watermarkSize.addEventListener('input', () => {
             watermarkSizeValue.textContent = `${watermarkSize.value}%`;
+            if (watermarkOverlay && activeTab === 'image') {
+                updateWatermarkPreview();
+            }
         });
         
         watermarkOpacity.addEventListener('input', () => {
             watermarkOpacityValue.textContent = `${watermarkOpacity.value}%`;
+            if (watermarkOverlay && activeTab === 'image') {
+                updateWatermarkStyle();
+            }
         });
         
         // Quality controls
@@ -597,8 +718,26 @@
             qualityValue.textContent = `${qualitySlider.value}%`;
         });
         
+        // Positioning mode buttons
+        precisePositionBtn.addEventListener('click', () => {
+            preciseMode = true;
+            precisePositionBtn.classList.add('active');
+            gridPositionBtn.classList.remove('active');
+            if (watermarkOverlay) {
+                enablePrecisePositioning();
+            }
+        });
+        
+        gridPositionBtn.addEventListener('click', () => {
+            preciseMode = false;
+            gridPositionBtn.classList.add('active');
+            precisePositionBtn.classList.remove('active');
+            applyGridPosition();
+        });
+        
         // Apply watermark
         applyWatermarkBtn.addEventListener('click', applyWatermark);
+        updatePreviewBtn.addEventListener('click', updateWatermarkPreview);
         
         // Functions
         function handleImageUpload(e) {
@@ -618,6 +757,9 @@
                     displayImage(currentImage);
                     previewPlaceholder.style.display = 'none';
                     imagePreview.style.display = 'block';
+                    
+                    // Initialize watermark overlay
+                    initWatermarkOverlay();
                 };
                 originalImage.src = event.target.result;
             };
@@ -637,7 +779,9 @@
             reader.onload = function(event) {
                 watermarkImage = new Image();
                 watermarkImage.onload = function() {
-                    // Watermark image loaded successfully
+                    if (activeTab === 'image') {
+                        updateWatermarkPreview();
+                    }
                 };
                 watermarkImage.src = event.target.result;
             };
@@ -652,6 +796,271 @@
             if (originalImage) {
                 currentImage = originalImage;
                 displayImage(currentImage);
+                if (watermarkOverlay) {
+                    watermarkOverlay.remove();
+                    watermarkOverlay = null;
+                }
+                initWatermarkOverlay();
+            }
+        }
+        
+        function initWatermarkOverlay() {
+            if (watermarkOverlay) {
+                watermarkOverlay.remove();
+            }
+            
+            watermarkOverlay = document.createElement('div');
+            watermarkOverlay.className = `watermark-overlay ${activeTab}`;
+            previewContainer.appendChild(watermarkOverlay);
+            
+            if (activeTab === 'text') {
+                watermarkOverlay.textContent = watermarkText.value || 'Your Watermark';
+                watermarkOverlay.style.color = textColor.value;
+                watermarkOverlay.style.fontFamily = textFont.value;
+                watermarkOverlay.style.fontSize = `${textSize.value}px`;
+                watermarkOverlay.style.backgroundColor = textBgColor.value;
+                watermarkOverlay.style.opacity = textOpacity.value / 100;
+                watermarkOverlay.style.padding = '5px 10px';
+                watermarkOverlay.style.borderRadius = '3px';
+            } else if (activeTab === 'image' && watermarkImage) {
+                const sizePercent = parseInt(watermarkSize.value) / 100;
+                const imgElem = document.createElement('img');
+                imgElem.src = watermarkImage.src;
+                imgElem.style.width = '100%';
+                imgElem.style.height = '100%';
+                imgElem.style.opacity = watermarkOpacity.value / 100;
+                watermarkOverlay.appendChild(imgElem);
+                
+                // Set initial size based on percentage of preview container
+                const containerWidth = previewContainer.clientWidth;
+                const watermarkWidth = containerWidth * sizePercent;
+                watermarkOverlay.style.width = `${watermarkWidth}px`;
+                
+                // Maintain aspect ratio
+                const aspectRatio = watermarkImage.height / watermarkImage.width;
+                watermarkOverlay.style.height = `${watermarkWidth * aspectRatio}px`;
+            }
+            
+            // Add resize handle
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'watermark-handle';
+            watermarkOverlay.appendChild(resizeHandle);
+            
+            // Set initial position
+            applyGridPosition();
+            
+            // Enable dragging if in precise mode
+            if (preciseMode) {
+                enablePrecisePositioning();
+            }
+            
+            // Add event listeners for resize handle
+            resizeHandle.addEventListener('mousedown', startResize);
+        }
+        
+        function enablePrecisePositioning() {
+            if (!watermarkOverlay) return;
+            
+            watermarkOverlay.classList.add('active');
+            watermarkOverlay.style.cursor = 'move';
+            
+            // Remove any existing event listeners first
+            watermarkOverlay.removeEventListener('mousedown', startDrag);
+            document.removeEventListener('mousemove', duringDrag);
+            document.removeEventListener('mouseup', endDrag);
+            
+            // Add new event listeners
+            watermarkOverlay.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', duringDrag);
+            document.addEventListener('mouseup', endDrag);
+        }
+        
+        function startDrag(e) {
+            if (e.target.classList.contains('watermark-handle')) return;
+            
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            
+            const rect = watermarkOverlay.getBoundingClientRect();
+            overlayStartX = rect.left;
+            overlayStartY = rect.top;
+            
+            watermarkOverlay.style.zIndex = '10';
+            e.preventDefault();
+        }
+        
+        function duringDrag(e) {
+            if (!isDragging) return;
+            
+            const deltaX = e.clientX - dragStartX;
+            const deltaY = e.clientY - dragStartY;
+            
+            const newX = overlayStartX + deltaX;
+            const newY = overlayStartY + deltaY;
+            
+            // Constrain to preview container
+            const containerRect = previewContainer.getBoundingClientRect();
+            const overlayRect = watermarkOverlay.getBoundingClientRect();
+            
+            const maxX = containerRect.right - overlayRect.width;
+            const maxY = containerRect.bottom - overlayRect.height;
+            
+            const constrainedX = Math.max(containerRect.left, Math.min(newX, maxX));
+            const constrainedY = Math.max(containerRect.top, Math.min(newY, maxY));
+            
+            watermarkOverlay.style.left = `${constrainedX - containerRect.left}px`;
+            watermarkOverlay.style.top = `${constrainedY - containerRect.top}px`;
+            
+            // Update coordinates display
+            updateCoordinatesDisplay();
+        }
+        
+        function endDrag() {
+            isDragging = false;
+            watermarkOverlay.style.zIndex = '5';
+        }
+        
+        function startResize(e) {
+            isResizing = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            
+            const rect = watermarkOverlay.getBoundingClientRect();
+            overlayStartX = rect.width;
+            overlayStartY = rect.height;
+            
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        
+        function applyGridPosition() {
+            if (!watermarkOverlay || !previewContainer) return;
+            
+            const containerRect = previewContainer.getBoundingClientRect();
+            const overlayRect = watermarkOverlay.getBoundingClientRect();
+            const padding = 20;
+            
+            let left, top;
+            const position = activeTab === 'text' ? textPosition : imagePosition;
+            
+            switch (position) {
+                case 'top-left':
+                    left = padding;
+                    top = padding;
+                    break;
+                case 'top-center':
+                    left = (containerRect.width - overlayRect.width) / 2;
+                    top = padding;
+                    break;
+                case 'top-right':
+                    left = containerRect.width - overlayRect.width - padding;
+                    top = padding;
+                    break;
+                case 'center-left':
+                    left = padding;
+                    top = (containerRect.height - overlayRect.height) / 2;
+                    break;
+                case 'center':
+                    left = (containerRect.width - overlayRect.width) / 2;
+                    top = (containerRect.height - overlayRect.height) / 2;
+                    break;
+                case 'center-right':
+                    left = containerRect.width - overlayRect.width - padding;
+                    top = (containerRect.height - overlayRect.height) / 2;
+                    break;
+                case 'bottom-left':
+                    left = padding;
+                    top = containerRect.height - overlayRect.height - padding;
+                    break;
+                case 'bottom-center':
+                    left = (containerRect.width - overlayRect.width) / 2;
+                    top = containerRect.height - overlayRect.height - padding;
+                    break;
+                case 'bottom-right':
+                    left = containerRect.width - overlayRect.width - padding;
+                    top = containerRect.height - overlayRect.height - padding;
+                    break;
+            }
+            
+            watermarkOverlay.style.left = `${left}px`;
+            watermarkOverlay.style.top = `${top}px`;
+            
+            updateCoordinatesDisplay();
+        }
+        
+        function updateCoordinatesDisplay() {
+            if (!watermarkOverlay) return;
+            
+            const rect = watermarkOverlay.getBoundingClientRect();
+            const containerRect = previewContainer.getBoundingClientRect();
+            
+            const x = Math.round(rect.left - containerRect.left);
+            const y = Math.round(rect.top - containerRect.top);
+            
+            positionX.textContent = x;
+            positionY.textContent = y;
+        }
+        
+        function updateWatermarkStyle() {
+            if (!watermarkOverlay) return;
+            
+            if (activeTab === 'text') {
+                watermarkOverlay.style.opacity = textOpacity.value / 100;
+            } else {
+                const img = watermarkOverlay.querySelector('img');
+                if (img) {
+                    img.style.opacity = watermarkOpacity.value / 100;
+                }
+            }
+        }
+        
+        function updateWatermarkPreview() {
+            if (!watermarkOverlay) {
+                initWatermarkOverlay();
+                return;
+            }
+            
+            if (activeTab === 'text') {
+                watermarkOverlay.textContent = watermarkText.value || 'Your Watermark';
+                watermarkOverlay.style.color = textColor.value;
+                watermarkOverlay.style.fontFamily = textFont.value;
+                watermarkOverlay.style.fontSize = `${textSize.value}px`;
+                watermarkOverlay.style.backgroundColor = textBgColor.value;
+                watermarkOverlay.style.opacity = textOpacity.value / 100;
+            } else if (activeTab === 'image' && watermarkImage) {
+                // Clear existing content
+                watermarkOverlay.innerHTML = '';
+                
+                const sizePercent = parseInt(watermarkSize.value) / 100;
+                const imgElem = document.createElement('img');
+                imgElem.src = watermarkImage.src;
+                imgElem.style.width = '100%';
+                imgElem.style.height = '100%';
+                imgElem.style.opacity = watermarkOpacity.value / 100;
+                watermarkOverlay.appendChild(imgElem);
+                
+                // Set size based on percentage of preview container
+                const containerWidth = previewContainer.clientWidth;
+                const watermarkWidth = containerWidth * sizePercent;
+                watermarkOverlay.style.width = `${watermarkWidth}px`;
+                
+                // Maintain aspect ratio
+                const aspectRatio = watermarkImage.height / watermarkImage.width;
+                watermarkOverlay.style.height = `${watermarkWidth * aspectRatio}px`;
+                
+                // Add resize handle back
+                const resizeHandle = document.createElement('div');
+                resizeHandle.className = 'watermark-handle';
+                watermarkOverlay.appendChild(resizeHandle);
+                resizeHandle.addEventListener('mousedown', startResize);
+            }
+            
+            // Re-apply current position
+            if (preciseMode) {
+                enablePrecisePositioning();
+            } else {
+                applyGridPosition();
             }
         }
         
@@ -694,15 +1103,31 @@
                 ctx.putImageData(sharpenedData, 0, 0);
             }
             
-            // Apply watermark based on active tab
-            if (activeTab === 'text') {
-                applyTextWatermark(ctx, width, height);
-            } else {
-                if (watermarkImage) {
-                    applyImageWatermark(ctx, width, height);
+            // Calculate watermark position based on overlay position
+            if (watermarkOverlay) {
+                const containerRect = previewContainer.getBoundingClientRect();
+                const overlayRect = watermarkOverlay.getBoundingClientRect();
+                
+                // Calculate scale factors between preview and actual image
+                const scaleX = width / containerRect.width;
+                const scaleY = height / containerRect.height;
+                
+                // Calculate watermark position and size in the actual image
+                const watermarkX = (overlayRect.left - containerRect.left) * scaleX;
+                const watermarkY = (overlayRect.top - containerRect.top) * scaleY;
+                const watermarkWidth = overlayRect.width * scaleX;
+                const watermarkHeight = overlayRect.height * scaleY;
+                
+                // Apply watermark based on active tab
+                if (activeTab === 'text') {
+                    applyTextWatermark(ctx, watermarkX, watermarkY, watermarkWidth, watermarkHeight);
                 } else {
-                    alert('Please upload a watermark image first.');
-                    return;
+                    if (watermarkImage) {
+                        applyImageWatermark(ctx, watermarkX, watermarkY, watermarkWidth, watermarkHeight);
+                    } else {
+                        alert('Please upload a watermark image first.');
+                        return;
+                    }
                 }
             }
             
@@ -715,138 +1140,41 @@
             watermarkedImage.src = canvas.toDataURL('image/jpeg', qualitySlider.value / 100);
         }
         
-        function applyTextWatermark(ctx, width, height) {
+        function applyTextWatermark(ctx, x, y, width, height) {
             const text = watermarkText.value || 'Your Watermark';
-            const fontSize = parseInt(textSize.value);
+            const fontSize = parseInt(textSize.value) * (width / previewContainer.clientWidth);
             const fontFamily = textFont.value;
             const color = textColor.value;
+            const bgColor = textBgColor.value;
             const opacity = parseInt(textOpacity.value) / 100;
             
             ctx.font = `bold ${fontSize}px ${fontFamily}`;
-            ctx.fillStyle = color;
-            ctx.globalAlpha = opacity;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            const textWidth = ctx.measureText(text).width;
             
-            // Calculate position
-            const padding = 20;
-            let x, y;
-            
-            switch (textPosition) {
-                case 'top-left':
-                    x = padding + ctx.measureText(text).width / 2;
-                    y = padding + fontSize / 2;
-                    ctx.textAlign = 'left';
-                    break;
-                case 'top-center':
-                    x = width / 2;
-                    y = padding + fontSize / 2;
-                    break;
-                case 'top-right':
-                    x = width - padding - ctx.measureText(text).width / 2;
-                    y = padding + fontSize / 2;
-                    ctx.textAlign = 'right';
-                    break;
-                case 'center-left':
-                    x = padding + ctx.measureText(text).width / 2;
-                    y = height / 2;
-                    ctx.textAlign = 'left';
-                    break;
-                case 'center':
-                    x = width / 2;
-                    y = height / 2;
-                    break;
-                case 'center-right':
-                    x = width - padding - ctx.measureText(text).width / 2;
-                    y = height / 2;
-                    ctx.textAlign = 'right';
-                    break;
-                case 'bottom-left':
-                    x = padding + ctx.measureText(text).width / 2;
-                    y = height - padding - fontSize / 2;
-                    ctx.textAlign = 'left';
-                    break;
-                case 'bottom-center':
-                    x = width / 2;
-                    y = height - padding - fontSize / 2;
-                    break;
-                case 'bottom-right':
-                    x = width - padding - ctx.measureText(text).width / 2;
-                    y = height - padding - fontSize / 2;
-                    ctx.textAlign = 'right';
-                    break;
+            // Draw background if color is not fully transparent
+            if (bgColor !== '#00000000') {
+                ctx.fillStyle = bgColor;
+                ctx.globalAlpha = opacity * 0.7; // Slightly less opaque for background
+                ctx.fillRect(x, y, textWidth + 20, fontSize + 10);
             }
             
-            // Add text shadow for better visibility
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 3;
-            ctx.shadowOffsetX = 2;
-            ctx.shadowOffsetY = 2;
+            // Draw text
+            ctx.fillStyle = color;
+            ctx.globalAlpha = opacity;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(text, x + 10, y + 5);
             
-            ctx.fillText(text, x, y);
-            
-            // Reset shadow and alpha
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
+            // Reset alpha
             ctx.globalAlpha = 1;
         }
         
-        function applyImageWatermark(ctx, width, height) {
-            const sizePercent = parseInt(watermarkSize.value) / 100;
+        function applyImageWatermark(ctx, x, y, width, height) {
             const opacity = parseInt(watermarkOpacity.value) / 100;
-            
-            // Calculate watermark dimensions
-            const watermarkWidth = width * sizePercent;
-            const watermarkHeight = (watermarkImage.height / watermarkImage.width) * watermarkWidth;
-            
-            // Calculate position
-            const padding = 20;
-            let x, y;
-            
-            switch (imagePosition) {
-                case 'top-left':
-                    x = padding;
-                    y = padding;
-                    break;
-                case 'top-center':
-                    x = (width - watermarkWidth) / 2;
-                    y = padding;
-                    break;
-                case 'top-right':
-                    x = width - watermarkWidth - padding;
-                    y = padding;
-                    break;
-                case 'center-left':
-                    x = padding;
-                    y = (height - watermarkHeight) / 2;
-                    break;
-                case 'center':
-                    x = (width - watermarkWidth) / 2;
-                    y = (height - watermarkHeight) / 2;
-                    break;
-                case 'center-right':
-                    x = width - watermarkWidth - padding;
-                    y = (height - watermarkHeight) / 2;
-                    break;
-                case 'bottom-left':
-                    x = padding;
-                    y = height - watermarkHeight - padding;
-                    break;
-                case 'bottom-center':
-                    x = (width - watermarkWidth) / 2;
-                    y = height - watermarkHeight - padding;
-                    break;
-                case 'bottom-right':
-                    x = width - watermarkWidth - padding;
-                    y = height - watermarkHeight - padding;
-                    break;
-            }
             
             // Apply opacity and draw watermark
             ctx.globalAlpha = opacity;
-            ctx.drawImage(watermarkImage, x, y, watermarkWidth, watermarkHeight);
+            ctx.drawImage(watermarkImage, x, y, width, height);
             ctx.globalAlpha = 1;
         }
         
@@ -905,10 +1233,22 @@
             // Set initial values for display
             textSizeValue.textContent = `${textSize.value}px`;
             textColorValue.textContent = textColor.value.toUpperCase();
+            textBgColorValue.textContent = textBgColor.value.toUpperCase();
             textOpacityValue.textContent = `${textOpacity.value}%`;
             qualityValue.textContent = `${qualitySlider.value}%`;
             watermarkSizeValue.textContent = `${watermarkSize.value}%`;
             watermarkOpacityValue.textContent = `${watermarkOpacity.value}%`;
+            
+            // Set precise mode as default
+            precisePositionBtn.classList.add('active');
+            preciseMode = true;
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (watermarkOverlay && !preciseMode) {
+                applyGridPosition();
+            }
         });
     </script>
 </body>
