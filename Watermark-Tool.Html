@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Watermark Tool</title>
+    <title>Watermark Tool</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -12,7 +12,8 @@
             --neon-green: #39ff14;
             --neon-purple: #bf00ff;
             --neon-yellow: #ffff00;
-            --neon-red: #ff3131;
+            --dark-red: #8b0000;
+            --blood-red: #bb0a1e;
             --dark-bg: #0a0a0a;
             --card-bg: #1a1a1a;
             --text-light: #f0f0f0;
@@ -35,9 +36,9 @@
             min-height: 100vh;
             padding: 20px;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 0, 255, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 50% 50%, rgba(57, 255, 20, 0.03) 0%, transparent 30%);
+                radial-gradient(circle at 10% 20%, rgba(139, 0, 0, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(187, 10, 30, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(191, 0, 255, 0.05) 0%, transparent 30%);
         }
 
         .container {
@@ -55,7 +56,7 @@
         h1 {
             font-size: 3rem;
             margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--neon-red), var(--neon-pink), var(--neon-purple));
+            background: linear-gradient(90deg, var(--dark-red), var(--blood-red), var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
@@ -103,7 +104,7 @@
         }
 
         .upload-area {
-            border: 2px dashed var(--neon-purple);
+            border: 2px dashed var(--blood-red);
             border-radius: var(--border-radius);
             padding: 40px 20px;
             text-align: center;
@@ -116,12 +117,12 @@
 
         .upload-area:hover {
             border-color: var(--neon-pink);
-            box-shadow: 0 0 15px rgba(191, 0, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
         }
 
         .upload-area i {
             font-size: 3rem;
-            color: var(--neon-purple);
+            color: var(--blood-red);
             margin-bottom: 15px;
             display: block;
         }
@@ -142,7 +143,7 @@
         }
 
         .btn {
-            background: linear-gradient(45deg, var(--neon-red), var(--neon-pink));
+            background: linear-gradient(45deg, var(--dark-red), var(--blood-red));
             color: white;
             border: none;
             padding: 12px 25px;
@@ -153,12 +154,12 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 15px rgba(255, 49, 49, 0.3);
+            box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(255, 49, 49, 0.5);
+            box-shadow: 0 6px 20px rgba(187, 10, 30, 0.5);
         }
 
         .btn i {
@@ -420,6 +421,21 @@
             font-weight: 600;
         }
 
+        .quality-indicator {
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .quality-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--dark-red), var(--blood-red), var(--neon-green));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
         .action-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -450,7 +466,7 @@
         }
 
         .notification.error {
-            border-left-color: var(--neon-red);
+            border-left-color: var(--dark-red);
         }
 
         footer {
@@ -468,7 +484,7 @@
             height: 50px;
             border: 5px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top-color: var(--neon-pink);
+            border-top-color: var(--blood-red);
             animation: spin 1s ease-in-out infinite;
             margin: 20px auto;
         }
@@ -570,6 +586,17 @@
                                 <option value="Times New Roman">Times New Roman</option>
                                 <option value="Courier New">Courier New</option>
                                 <option value="Impact">Impact</option>
+                                <option value="Comic Sans MS">Comic Sans MS</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="textStyle">Text Style</label>
+                            <select id="textStyle">
+                                <option value="normal">Normal</option>
+                                <option value="bold">Bold</option>
+                                <option value="italic">Italic</option>
+                                <option value="bold italic">Bold Italic</option>
                             </select>
                         </div>
                     </div>
@@ -630,6 +657,9 @@
                             <div class="slider-container">
                                 <input type="range" min="1" max="100" value="75" class="slider" id="enhancementLevel">
                                 <span class="slider-value" id="enhancementValue">75%</span>
+                            </div>
+                            <div class="quality-indicator">
+                                <div class="quality-fill" id="qualityFill" style="width: 75%;"></div>
                             </div>
                         </div>
                     </div>
@@ -703,6 +733,7 @@
         const textOpacity = document.getElementById('textOpacity');
         const textOpacityValue = document.getElementById('textOpacityValue');
         const fontFamily = document.getElementById('fontFamily');
+        const textStyle = document.getElementById('textStyle');
         const imageSize = document.getElementById('imageSize');
         const imageSizeValue = document.getElementById('imageSizeValue');
         const imageOpacity = document.getElementById('imageOpacity');
@@ -711,6 +742,7 @@
         const enhancementToggle = document.getElementById('enhancementToggle');
         const enhancementLevel = document.getElementById('enhancementLevel');
         const enhancementValue = document.getElementById('enhancementValue');
+        const qualityFill = document.getElementById('qualityFill');
         const watermarkBtn = document.getElementById('watermarkBtn');
         const resetBtn = document.getElementById('resetBtn');
         const imagePreview = document.getElementById('imagePreview');
@@ -779,7 +811,7 @@
         function handleFileDrop(e) {
             e.preventDefault();
             e.stopPropagation();
-            e.currentTarget.style.borderColor = 'var(--neon-purple)';
+            e.currentTarget.style.borderColor = 'var(--blood-red)';
             e.currentTarget.style.boxShadow = 'none';
             
             const file = e.dataTransfer.files[0];
@@ -802,7 +834,7 @@
         function handleWatermarkImageDrop(e) {
             e.preventDefault();
             e.stopPropagation();
-            watermarkImageArea.style.borderColor = 'var(--neon-purple)';
+            watermarkImageArea.style.borderColor = 'var(--blood-red)';
             watermarkImageArea.style.boxShadow = 'none';
             
             const file = e.dataTransfer.files[0];
@@ -910,6 +942,7 @@
         function updateEnhancementLevel() {
             enhancementLevelValue = enhancementLevel.value;
             enhancementValue.textContent = `${enhancementLevelValue}%`;
+            qualityFill.style.width = `${enhancementLevelValue}%`;
         }
 
         function toggleEnhancement() {
@@ -1000,6 +1033,9 @@
             // Saturation boosting
             applySaturation(data, 20 * intensity);
             
+            // Sharpness enhancement
+            applySharpness(data, 10 * intensity);
+            
             // Put the enhanced image data back
             ctx.putImageData(imageData, 0, 0);
         }
@@ -1034,14 +1070,32 @@
             }
         }
 
+        function applySharpness(data, intensity) {
+            // Simple sharpening effect
+            const factor = intensity / 100;
+            for (let i = 4; i < data.length - 4; i += 4) {
+                // Enhance edges by comparing with neighboring pixels
+                const edge = Math.abs(data[i] - data[i+4]) + 
+                            Math.abs(data[i+1] - data[i+5]) + 
+                            Math.abs(data[i+2] - data[i+6]);
+                
+                if (edge > 30) {
+                    data[i] = clamp(data[i] * (1 + factor/5));
+                    data[i+1] = clamp(data[i+1] * (1 + factor/5));
+                    data[i+2] = clamp(data[i+2] * (1 + factor/5));
+                }
+            }
+        }
+
         function applyTextWatermark(ctx, width, height) {
             const text = watermarkText.value || 'Your Watermark';
             const fontSizePx = parseInt(fontSize.value);
             const opacity = parseInt(textOpacity.value) / 100;
             const font = fontFamily.value;
+            const style = textStyle.value;
             
             // Set text style
-            ctx.font = `bold ${fontSizePx}px ${font}`;
+            ctx.font = `${style} ${fontSizePx}px ${font}`;
             ctx.fillStyle = textColor.value;
             ctx.globalAlpha = opacity;
             ctx.textAlign = 'center';
@@ -1051,7 +1105,7 @@
             const position = calculatePosition(width, height, ctx.measureText(text).width, fontSizePx);
             
             // Add text shadow for better visibility
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
             ctx.shadowBlur = 5;
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;
@@ -1059,7 +1113,7 @@
             // Draw text
             ctx.fillText(text, position.x, position.y);
             
-            // Reset shadow
+            // Reset shadow and opacity
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.shadowOffsetX = 0;
@@ -1148,9 +1202,9 @@
         }
 
         function calculateImprovement(originalSizeStr, watermarkedSizeStr) {
-            // Simple improvement calculation based on file size difference
+            // Simple improvement calculation
             // In a real application, this would be based on actual quality metrics
-            return enableEnhancement ? 25 : 5;
+            return enableEnhancement ? Math.min(50, 10 + enhancementLevelValue / 2) : 5;
         }
 
         function resetTool() {
@@ -1168,12 +1222,15 @@
             fontSizeValue.textContent = '30px';
             textOpacity.value = 70;
             textOpacityValue.textContent = '70%';
+            fontFamily.value = 'Arial';
+            textStyle.value = 'normal';
             imageSize.value = 20;
             imageSizeValue.textContent = '20%';
             imageOpacity.value = 70;
             imageOpacityValue.textContent = '70%';
             enhancementLevel.value = 75;
             enhancementValue.textContent = '75%';
+            qualityFill.style.width = '75%';
             enhancementToggle.checked = true;
             
             // Reset selections
